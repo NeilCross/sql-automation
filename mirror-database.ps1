@@ -123,8 +123,13 @@ Write-Host "*" -ForegroundColor Yellow -nonewline; Write-Host " Mirror Server (-
 Write-Host "*" -ForegroundColor Yellow -nonewline; Write-Host " Witness Server (-WitnessServer)                :`t" -nonewline; Write-Host "$WitnessServer" -ForegroundColor DarkGreen -nonewline; if ($WitnessServer -notmatch "N/A") {Write-Host " (TCP $WitnessServerPort)"} else {Write-Host ""}
 Write-Host "*" -ForegroundColor Yellow -nonewline; Write-Host " Database Name (-DbName)                        :`t" -nonewline; Write-Host "$DbName" -ForegroundColor DarkGreen
 Write-Host "*" -ForegroundColor Yellow -nonewline; Write-Host " SQL Service Domain Account (-SQLDomainAccount) :`t" -nonewline; Write-Host "$SQLDomainAccount" -ForegroundColor DarkGreen
-if (!(Ask-YesOrNo -Message "The parameters above will be used. Are you sure you want to continue?")) {Write-Host "You have chosen to end this script execution. That's a wise decision!"; Break}
- 
+
+if ($ConfirmPreference -gt "None")
+{
+    if (!(Ask-YesOrNo -Message "The parameters above will be used. Are you sure you want to continue?")) {
+        Write-Host "You have chosen to end this script execution. That's a wise decision!"; Break
+    }
+}
 
 if (!(Test-MirroringPrerequisites))
 {

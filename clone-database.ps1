@@ -115,7 +115,13 @@ Write-Host "*" -ForegroundColor Yellow -nonewline; Write-Host " Destination Data
 Write-Host "*" -ForegroundColor Yellow -nonewline; Write-Host " Backup Path (-BackupPath)                    : " -nonewline; Write-Host $BackupPath -ForegroundColor DarkGreen
 Write-Host "*" -ForegroundColor Yellow -nonewline; Write-Host " Restore Data Path (-RestoreDataPath)         : " -nonewline; Write-Host $RestoreDataPath -ForegroundColor DarkGreen
 Write-Host "*" -ForegroundColor Yellow -nonewline; Write-Host " Restore Log Path (-RestoreLogPath)           : " -nonewline; Write-Host $RestoreLogPath -ForegroundColor DarkGreen
-if (!(Ask-YesOrNo -Message "The parameters above will be used. Are you sure you want to continue?")) {Write-Host "You have chosen to end this script execution. That's a wise decision!"; Break}
+
+if ($ConfirmPreference -gt "None")
+{
+    if (!(Ask-YesOrNo -Message "The parameters above will be used. Are you sure you want to continue?")) {
+        Write-Host "You have chosen to end this script execution. That's a wise decision!"; Break
+    }
+}
 
 if (!(Test-ClonePrerequisites))
 {
