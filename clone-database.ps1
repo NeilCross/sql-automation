@@ -228,7 +228,7 @@ for ($i=0; $i -lt $DestinationDatabases.Length; $i++)
         try {
             "Restoring to ${destinationServer}/${destinationDatabase} starting."
             $restoreQuery.ToString()
-            Invoke-Sqlcmd -ServerInstance $SourceServer -QueryTimeout 0 -Query $restoreQuery.ToString()
+            Invoke-Sqlcmd -ServerInstance $destinationServer -QueryTimeout 0 -Query $restoreQuery.ToString()
         }
         catch {
             # Print warning that the restore failed, could just throw exception to halt the script.
