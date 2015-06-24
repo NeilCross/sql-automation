@@ -155,7 +155,19 @@ BACKUP LOG $DbName TO DISK = '$BackupPath\${DbName}-temp_for_mirror.bak'
 GO
 "@
 
-$DbRestoreQuery=@"
+# find out if the mirror server is active currently
+
+$DbRestoreQuery = New-Object System.Text.StringBuilder
+$operatingDb = (New-Object Microsoft.SqlServer.Management.Smo.Server $MirrorServer).Databases | where-Object {$_.Name -eq $DbName -and $_.Status -eq "Normal"}
+    
+if ($operatingDb -ne $null)
+{
+    "Destination exists, SINGLE_USER mode set."
+    $dbExists = $true
+    $DbRestoreQuery.Append("ALTER Database [${DbName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE") | out-null
+}
+
+$DbRestoreQuery.AppendLine(@"
 USE master
 GO
 RESTORE DATABASE $DbName FROM DISK = '$BackupPath\${DbName}-temp_for_mirror.bak'
@@ -164,7 +176,7 @@ GO
 RESTORE LOG $DbName FROM DISK = '$BackupPath\${DbName}-temp_for_mirror.bak'
 WITH FILE = 2, NORECOVERY
 GO
-"@
+"@) | out-null
  
 #Add-PSSnapin SqlServerCmdletSnapin100
 
@@ -173,7 +185,7 @@ Invoke-Sqlcmd -ServerInstance $PrincipalServer -Query $DbBackUpQuery -QueryTimeo
 Write-Host "Backup of the $DbName database completed successfully." -ForegroundColor Yellow
 
 Write-Host "Restore of the $DbName database started on $MirrorServer. Please wait..."
-Invoke-Sqlcmd -ServerInstance $MirrorServer -Query $DbRestoreQuery -QueryTimeout 0
+Invoke-Sqlcmd -ServerInstance $MirrorServer -Query $DbRestoreQuery.ToString() -QueryTimeout 0
 Write-Host "Restore of the $DbName database on $MirrorServer completed successfully." -ForegroundColor Yellow
 
 Remove-Item $BackupPath\${DbName}-temp_for_mirror.bak -ErrorAction Continue
