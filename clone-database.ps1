@@ -51,6 +51,8 @@ function Test-ClonePrerequisites
 
     if ($db.Status -ne "Normal")
     {
+        $status = $db.Status;
+        Write-Host "Cannot connect to $SourceServer/$SourceDatabase. Status is $status." -ForegroundColor Red; 
         return $false;
     }
 
