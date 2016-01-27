@@ -158,18 +158,25 @@ GO
 # find out if the mirror server is active currently
 
 $DbRestoreQuery = New-Object System.Text.StringBuilder
+
+$DbRestoreQuery.AppendLine(@"
+USE master
+GO
+"@) | out-null
+
 $operatingDb = (New-Object Microsoft.SqlServer.Management.Smo.Server $MirrorServer).Databases | where-Object {$_.Name -eq $DbName -and $_.Status -eq "Normal"}
     
 if ($operatingDb -ne $null)
 {
     "Destination exists, SINGLE_USER mode set."
     $dbExists = $true
-    $DbRestoreQuery.Append("ALTER Database [${DbName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE") | out-null
+    $DbRestoreQuery.AppendLine(@"
+ALTER Database [${DbName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE
+GO
+"@) | out-null
 }
 
 $DbRestoreQuery.AppendLine(@"
-USE master
-GO
 RESTORE DATABASE $DbName FROM DISK = '$BackupPath\${DbName}-temp_for_mirror.bak'
 WITH FILE = 1, NORECOVERY, REPLACE
 GO
