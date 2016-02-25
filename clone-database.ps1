@@ -8,12 +8,11 @@ Param(
     })]
     $SourceDatabase,
     [string[]]$DestinationServers,
-    [Parameter(Mandatory=$true, HelpMessage="The database to create from the clone.")]
     [ValidateScript({
         if ($_ -eq "") {Write-Host "Destination Database is required, please specify a value for -DestinationDatabase.`n" -ForegroundColor Red; Break} else {$True}
         if ($_ -match "^(master|msdb|temp|model)$") {Write-Host "Only user databases can be cloned to. You cannot mirror the master, msdb, tempdb or model databases.`n" -ForegroundColor Red; Break} else {$True}
     })]
-    [string[]]$DestinationDatabases,
+    [string[]]$DestinationDatabases = $SourceDatabase,
     $BackupPath,
     $RestoreDataPath='not specified',
     $RestoreLogPath='not specified',
@@ -229,7 +228,7 @@ for ($i=0; $i -lt $DestinationDatabases.Length; $i++)
 
         try {
             "Restoring to ${destinationServer}/${destinationDatabase} starting."
-            $restoreQuery.ToString()
+            Write-Host $restoreQuery.ToString()
             Invoke-Sqlcmd -ServerInstance $destinationServer -QueryTimeout 0 -Query $restoreQuery.ToString()
         }
         catch {
